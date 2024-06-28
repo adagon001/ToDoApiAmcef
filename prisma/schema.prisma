@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  hash         String
+  toDosCreated ToDo[]
+  toDoLists    ToDoList[]
+}
+
+model ToDoList {
+  id    Int    @id @default(autoincrement())
+  title String
+  toDos ToDo[]
+  users User[]
+}
+
+model ToDo {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  deadline    DateTime?
+  flag        Flag      @default(ACTIVE)
+
+  createdById Int
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  toDoListId  Int
+  toDoList    ToDoList @relation(fields: [toDoListId], references: [id], onDelete: Cascade)
+}
+
+enum Flag {
+  ACTIVE
+  DONE
+  CANCELLED
+}
